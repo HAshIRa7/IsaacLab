@@ -119,16 +119,17 @@ def main():
     # export policy to onnx/jit
     export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
     export_policy_as_jit(
-        ppo_runner.alg.actor_critic, ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.pt"
+        ppo_runner.alg.policy, ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.pt"
     )
-    export_policy_as_onnx(
-        ppo_runner.alg.actor_critic, normalizer=ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.onnx"
-    )
+    # export_policy_as_onnx(
+    #     ppo_runner.alg.actor_critic, normalizer=ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.onnx"
+    # )
 
     dt = env.unwrapped.physics_dt
 
     # reset environment
-    obs, _ = env.get_observations()
+    obs, extras = env.get_observations()
+    depth_images = extras['observations']['depth_image']
     timestep = 0
     # simulate environment
     while simulation_app.is_running():
@@ -136,9 +137,10 @@ def main():
         # run everything in inference mode
         with torch.inference_mode():
             # agent stepping
-            actions = policy(obs)
+            actions = policy(obs, depth_images)
             # env stepping
-            obs, _, _, _ = env.step(actions)
+            obs, _, _, infos = env.step(actions) 
+            depth_images = infos['observations']['depth_image']
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video

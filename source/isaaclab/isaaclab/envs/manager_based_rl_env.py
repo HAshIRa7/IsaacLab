@@ -20,7 +20,9 @@ from isaaclab.ui.widgets import ManagerLiveVisualizer
 
 from .common import VecEnvStepReturn
 from .manager_based_env import ManagerBasedEnv
-from .manager_based_rl_env_cfg import ManagerBasedRLEnvCfg
+from .manager_based_rl_env_cfg import ManagerBasedRLEnvCfg 
+
+import cv2
 
 
 class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
@@ -228,7 +230,13 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
             # trigger recorder terms for post-reset calls
             self.recorder_manager.record_post_reset(reset_env_ids)
 
-        # -- update command
+        # -- update command 
+        if 1:
+            DEPTH_MAX = 1.4
+            data = self.scene['camera'].data.output['distance_to_image_plane']
+            depth_data = torch.clip(data, 0., DEPTH_MAX) / DEPTH_MAX
+            cv2.imwrite('depth.jpg', 255 * depth_data[0].cpu().numpy())
+            cv2.imwrite('instances.jpg', self.scene['camera'].data.output['instance_segmentation_fast'][0].cpu().numpy())
         self.command_manager.compute(dt=self.step_dt)
         # -- step interval events
         if "interval" in self.event_manager.available_modes:

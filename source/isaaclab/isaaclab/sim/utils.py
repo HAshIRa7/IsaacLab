@@ -565,6 +565,10 @@ def get_first_matching_child_prim(
         stage = stage_utils.get_current_stage()
     # get prim
     prim = stage.GetPrimAtPath(prim_path)
+    # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
+
+        #     if not rigid_body_api and prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
+        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
     # check if prim is valid
     if not prim.IsValid():
         raise ValueError(f"Prim at path '{prim_path}' is not valid.")
@@ -613,6 +617,10 @@ def get_all_matching_child_prims(
         stage = stage_utils.get_current_stage()
     # get prim
     prim = stage.GetPrimAtPath(prim_path)
+    # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(stage, prim.GetPath()) 
+    # if not rigid_body_api and prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
+    #     UsdPhysics.RigidBodyAPI.Apply(prim)
+    
     # check if prim is valid
     if not prim.IsValid():
         raise ValueError(f"Prim at path '{prim_path}' is not valid.")

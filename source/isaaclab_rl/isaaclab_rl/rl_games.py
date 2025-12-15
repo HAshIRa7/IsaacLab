@@ -135,19 +135,19 @@ class RlGamesVecEnvWrapper(IVecEnv):
         return self.env.render_mode
 
     @property
-    def observation_space(self) -> gym.spaces.Box:
+    def observation_space(self) -> gym.spaces.Dict:
         """Returns the :attr:`Env` :attr:`observation_space`."""
         # note: rl-games only wants single observation space
         policy_obs_space = self.unwrapped.single_observation_space["policy"]
-        if not isinstance(policy_obs_space, gymnasium.spaces.Box):
-            raise NotImplementedError(
-                f"The RL-Games wrapper does not currently support observation space: '{type(policy_obs_space)}'."
-                f" If you need to support this, please modify the wrapper: {self.__class__.__name__},"
-                " and if you are nice, please send a merge-request."
-            )
+        # if not isinstance(policy_obs_space, gymnasium.spaces.Box):
+        #     raise NotImplementedError(
+        #         f"The RL-Games wrapper does not currently support observation space: '{type(policy_obs_space)}'."
+        #         f" If you need to support this, please modify the wrapper: {self.__class__.__name__},"
+        #         " and if you are nice, please send a merge-request."
+        #     )
         # note: maybe should check if we are a sub-set of the actual space. don't do it right now since
         #   in ManagerBasedRLEnv we are setting action space as (-inf, inf).
-        return gym.spaces.Box(-self._clip_obs, self._clip_obs, policy_obs_space.shape)
+        return policy_obs_space#gym.spaces.Box(-self._clip_obs, self._clip_obs, policy_obs_space.shape)
 
     @property
     def action_space(self) -> gym.Space:
