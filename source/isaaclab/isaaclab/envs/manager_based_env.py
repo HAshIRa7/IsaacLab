@@ -97,7 +97,11 @@ class ManagerBasedEnv:
             # when in extension mode
             if not builtins.ISAAC_LAUNCHED_FROM_TERMINAL:
                 raise RuntimeError("Simulation context already exists. Cannot create a new one.")
-            self.sim: SimulationContext = SimulationContext.instance()
+            self.sim: SimulationContext = SimulationContext.instance() 
+
+        multiplier = 1
+        n_pairs = self.sim.get_physics_context().get_gpu_found_lost_aggregate_pairs_capacity()
+        self.sim.get_physics_context().set_gpu_found_lost_aggregate_pairs_capacity(n_pairs * multiplier)
 
         # print useful information
         print("[INFO]: Base environment:")

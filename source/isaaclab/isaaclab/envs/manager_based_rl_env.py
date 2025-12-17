@@ -21,6 +21,7 @@ from isaaclab.ui.widgets import ManagerLiveVisualizer
 from .common import VecEnvStepReturn
 from .manager_based_env import ManagerBasedEnv
 from .manager_based_rl_env_cfg import ManagerBasedRLEnvCfg 
+import isaacsim.core.api.simulation_context as simulation_context
 
 import cv2
 
@@ -85,9 +86,16 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # -- init buffers
         self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
         # -- set the framerate of the gym video recorder wrapper so that the playback speed of the produced video matches the simulation
-        self.metadata["render_fps"] = 1 / self.step_dt
+        self.metadata["render_fps"] = 1 / self.step_dt 
 
+
+        # self.objects = ['obj', 'obj_1', 'obj_2'] 
+        # self.sampled_indices = [0 for _ in range(self.num_envs)]
+        # self.object_tracking_inds = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
         print("[INFO]: Completed setting up the environment...")
+        # multiplier = 1
+        # n_pairs = simulation_context.get_physics_context().get_gpu_found_lost_aggregate_pairs_capacity()
+        # simulation_context.get_physics_context().set_gpu_found_lost_aggregate_pairs_capacity(n_pairs * multiplier)
 
     """
     Properties.
@@ -115,6 +123,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         print("[INFO] Command Manager: ", self.command_manager)
 
         # call the parent class to load the managers for observations and actions.
+        self.object_tracking_inds = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
         super().load_managers()
 
         # prepare the managers
@@ -231,12 +240,12 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
             self.recorder_manager.record_post_reset(reset_env_ids)
 
         # -- update command 
-        if 1:
-            DEPTH_MAX = 1.4
-            data = self.scene['camera'].data.output['distance_to_image_plane']
-            depth_data = torch.clip(data, 0., DEPTH_MAX) / DEPTH_MAX
-            cv2.imwrite('depth.jpg', 255 * depth_data[0].cpu().numpy())
-            cv2.imwrite('instances.jpg', self.scene['camera'].data.output['instance_segmentation_fast'][0].cpu().numpy())
+        # if 1:
+        #     DEPTH_MAX = 1.4
+        #     data = self.scene['camera'].data.output['distance_to_image_plane']
+        #     depth_data = torch.clip(data, 0., DEPTH_MAX) / DEPTH_MAX
+        #     cv2.imwrite('depth.jpg', 255 * depth_data[0].cpu().numpy())
+        #     cv2.imwrite('instances.jpg', self.scene['camera'].data.output['instance_segmentation_fast'][0].cpu().numpy())
         self.command_manager.compute(dt=self.step_dt)
         # -- step interval events
         if "interval" in self.event_manager.available_modes:

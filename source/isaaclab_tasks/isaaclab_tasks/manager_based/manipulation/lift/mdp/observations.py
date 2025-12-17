@@ -19,19 +19,31 @@ if TYPE_CHECKING:
 def object_position_in_robot_root_frame(
     env: ManagerBasedRLEnv,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    # object_cfg: SceneEntityCfg = SceneEntityCfg("object")
+    objects_cfg: SceneEntityCfg = SceneEntityCfg("objs")
 ) -> torch.Tensor:
     """The position of the object in the robot's root frame."""
+    # for i in range(env.num_envs):
+    # name = env.objects[env.sampled_indices[i]] 
+    # object_cfg = SceneEntityCfg(name)
     robot: RigidObject = env.scene[robot_cfg.name]
-    object: RigidObject = env.scene[object_cfg.name]
-    object_pos_w = object.data.root_pos_w[:, :3]
+    object: RigidObject = env.scene[objects_cfg.name]
+    # object_pos_w = object.data.root_pos_w[:, :3] 
+    object_pos_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :3]
     object_pos_b, _ = subtract_frame_transforms(
         robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
     )
-    return object_pos_b 
+    return object_pos_b
+
+def class_type(
+    env: ManagerBasedRLEnv,
+): 
+    one_hot = torch.zeros(size=(env.num_envs, 3)).to(device=env.device) 
+    one_hot[torch.arange(env.num_envs), env.object_tracking_inds] = 1
+    return one_hot
 
 
-def depht_table_image(
+def depth_table_image(
     env: ManagerBasedRLEnv,
     # robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     camera_cfg: SceneEntityCfg = SceneEntityCfg("camera"),
@@ -40,10 +52,11 @@ def depht_table_image(
     camera = env.scene[camera_cfg.name] 
     DEPTH_MAX = 1.4
     depth_data = camera.data.output['distance_to_image_plane']
-    rgb_data = camera.data.output['rgb'][..., :3] 
+    # rgb_data = camera.data.output['rgb'][..., :3] 
     depth_data = torch.clip(depth_data, 0., DEPTH_MAX) / DEPTH_MAX
     depth_data = torch.abs(depth_data - DEPTH_MAX) 
-    rgb_data = rgb_data / 255
-    camera_data = torch.concat((rgb_data, depth_data), dim=-1)
-    camera_data = camera_data.permute(0, 3, 1, 2)
-    return camera_data
+    # rgb_data = rgb_data / 255
+    # camera_data = torch.concat((rgb_data, depth_data), dim=-1)
+    # camera_data = camera_data.permute(0, 3, 1, 2)
+    # return camera_data
+    return depth_data

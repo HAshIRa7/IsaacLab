@@ -18,53 +18,60 @@ if TYPE_CHECKING:
 
 
 def object_is_lifted(
-    env: ManagerBasedRLEnv, minimal_height: float, object_cfg: SceneEntityCfg = SceneEntityCfg("object")
+    env: ManagerBasedRLEnv, minimal_height: float, object_cfg: SceneEntityCfg = SceneEntityCfg("objs")
 ) -> torch.Tensor:
     """Reward the agent for lifting the object above the minimal height."""
-    object: RigidObject = env.scene[object_cfg.name]
-    return torch.where(object.data.root_pos_w[:, 2] > minimal_height, 1.0, 0.0)
+    objects: RigidObject = env.scene[object_cfg.name]
+    height = objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 2]
+    return torch.where(height > minimal_height, height, 0)
+
+def object_penalty_xy(
+    env: ManagerBasedRLEnv, object_cfg: SceneEntityCfg = SceneEntityCfg("objs")
+) -> torch.Tensor:
+    objects: RigidObject = env.scene[object_cfg.name]
+    return -torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.scene.env_origins[:, :2] - objects.data.default_object_state[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2], dim=1)**2
 
 
 def object_ee_distance(
     env: ManagerBasedRLEnv,
     std: float,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    object_cfg: SceneEntityCfg = SceneEntityCfg("objs"),
     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
 ) -> torch.Tensor:
     """Reward the agent for reaching the object using tanh-kernel."""
     # extract the used quantities (to enable type-hinting)
-    object: RigidObject = env.scene[object_cfg.name]
+    objects: RigidObject = env.scene[object_cfg.name]
     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
     # Target object position: (num_envs, 3)
-    cube_pos_w = object.data.root_pos_w
+    object_pos_w = objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :3]
     # End-effector position: (num_envs, 3)
     ee_w = ee_frame.data.target_pos_w[..., 0, :]
     # Distance of the end-effector to the object: (num_envs,)
-    object_ee_distance = torch.norm(cube_pos_w - ee_w, dim=1)
+    object_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
 
     # return 1 - torch.tanh(object_ee_distance / std)  
     return -object_ee_distance**2
 
 
-def in_air(
-    env: ManagerBasedRLEnv,
-    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
-    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
-) -> torch.Tensor:
+# def in_air(
+#     env: ManagerBasedRLEnv,
+#     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+#     ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+# ) -> torch.Tensor:
     
-    object: RigidObject = env.scene[object_cfg.name]
-    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
-    # Target object position: (num_envs, 3)
-    cube_pos_w = object.data.root_pos_w
-    # End-effector position: (num_envs, 3)
-    ee_w = ee_frame.data.target_pos_w[..., 0, :]
-    # Distance of the end-effector to the object: (num_envs,) 
+#     object: RigidObject = env.scene[object_cfg.name]
+#     ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name]
+#     # Target object position: (num_envs, 3)
+#     cube_pos_w = object.data.root_pos_w
+#     # End-effector position: (num_envs, 3)
+#     ee_w = ee_frame.data.target_pos_w[..., 0, :]
+#     # Distance of the end-effector to the object: (num_envs,) 
 
 
-    cube_pos_z = cube_pos_w[:, 2] 
-    ee_z = ee_w[:, 2] 
+#     cube_pos_z = cube_pos_w[:, 2] 
+#     ee_z = ee_w[:, 2] 
 
-    return torch.clip(ee_z - (cube_pos_z + 0.1), min=0.0)
+#     return torch.clip(ee_z - (cube_pos_z + 0.1), min=0.0)
 
 def ori_ee(
     env: ManagerBasedRLEnv,
@@ -78,7 +85,15 @@ def ori_ee(
     z_axis = z_axis[:, :, 0]
     scalari = (z_axis * torch.tensor([[0, 0, -1]], dtype=torch.float32, device=ee_frame.device)).sum(dim=-1)
     return scalari
-    
+
+def gripper_dist_reg(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    ee_frame: FrameTransformer = env.scene[ee_frame_cfg.name] 
+    ee_w = ee_frame.data.target_pos_w[..., 0, :]
+
+    return torch.norm(ee_w, dim=1)**2
 
 
 def object_goal_distance(

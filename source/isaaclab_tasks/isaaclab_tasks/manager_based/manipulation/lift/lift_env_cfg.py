@@ -6,7 +6,7 @@
 from dataclasses import MISSING
 
 import isaaclab.sim as sim_utils
-from isaaclab.assets import ArticulationCfg, AssetBaseCfg, DeformableObjectCfg, RigidObjectCfg
+from isaaclab.assets import ArticulationCfg, AssetBaseCfg, DeformableObjectCfg, RigidObjectCfg, RigidObjectCollectionCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
 from isaaclab.managers import EventTermCfg as EventTerm
@@ -145,7 +145,7 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
         obj_cfg = RigidObjectCfg(
             spawn=sim_utils.UsdFileCfg(
                 # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
-                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/my_model/chips-bag.usd',
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/my_model/chips_bag.usd',
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(
                         rigid_body_enabled=True,
                         disable_gravity=False,
@@ -165,16 +165,117 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
                 # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
             ),
             init_state=RigidObjectCfg.InitialStateCfg(
-                pos=(0., .5, 0.2),
+                pos=(0.4, 0.0, 0.055),
                 rot=(1.0, 0.0, 0.0, 0.0),
             ),
             collision_group = 0,
             prim_path = "{ENV_REGEX_NS}/obj"
-        )  
+        ) 
+
+        cube_cfg = RigidObjectCfg(
+            prim_path="{ENV_REGEX_NS}/Object",
+            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1, 0, 0, 0]),
+            spawn=UsdFileCfg(
+                usd_path="/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd",
+                scale=(1.0, 1.0, 1.0),
+                rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                    rigid_body_enabled=True,
+                    disable_gravity=False,
+                    max_depenetration_velocity=4.0,
+                    linear_damping = .1,
+                    angular_damping = .1,
+                    max_contact_impulse = float("inf"),
+                    max_angular_velocity=2,
+                    max_linear_velocity=2,
+                    solver_position_iteration_count=32,
+                    solver_velocity_iteration_count=10,
+                    stabilization_threshold=0.1,
+                ),
+                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
+                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                    articulation_enabled=False,
+                ),
+            ),
+            collision_group=0
+        )
+
+        obj_1_cfg = RigidObjectCfg(
+            spawn=sim_utils.UsdFileCfg(
+                # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd',
+                rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                        rigid_body_enabled=True,
+                        disable_gravity=False,
+                        max_depenetration_velocity=50.0,
+                        linear_damping = 1,
+                        angular_damping = 2,
+                        max_contact_impulse = float("inf"),
+                        max_linear_velocity=1,
+                        solver_position_iteration_count=32,
+                        solver_velocity_iteration_count=16,
+                        stabilization_threshold=0.1,
+                        ),
+                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
+                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                    articulation_enabled=False,
+                ),
+                # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
+            ),
+            init_state=RigidObjectCfg.InitialStateCfg(
+                pos=(0.4, 0.0, 0.055),
+                rot=(1.0, 0.0, 0.0, 0.0),
+            ),
+            collision_group = 0,
+            prim_path = "{ENV_REGEX_NS}/obj_1"
+        )
+        obj_2_cfg = RigidObjectCfg(
+            spawn=sim_utils.UsdFileCfg(
+                # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/tetra/chips_bag.usd',
+                rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                        rigid_body_enabled=True,
+                        disable_gravity=False,
+                        max_depenetration_velocity=50.0,
+                        linear_damping = 1,
+                        angular_damping = 2,
+                        max_contact_impulse = float("inf"),
+                        max_linear_velocity=1,
+                        solver_position_iteration_count=32,
+                        solver_velocity_iteration_count=16,
+                        stabilization_threshold=0.1,
+                        ),
+                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
+                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                    articulation_enabled=False,
+                ),
+                # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
+            ),
+            init_state=RigidObjectCfg.InitialStateCfg(
+                pos=(0.4, -0.3, 0.055),
+                rot=(1.0, 0.0, 0.0, 0.0),
+            ),
+            collision_group = 0,
+            prim_path = "{ENV_REGEX_NS}/obj_2"
+        ) 
+
+
+        OBJ_CFGs = [obj_2_cfg, obj_1_cfg]# obj_2_cfg]
 
         super().__init__(**kwargs) 
 
-        self.obj = obj_cfg.replace(prim_path="{ENV_REGEX_NS}/obj")
+        # self.obj = obj_cfg.replace(prim_path="{ENV_REGEX_NS}/obj")
+        # self.obj_1 = obj_1_cfg.replace(prim_path="{ENV_REGEX_NS}/obj_1") 
+        # self.obj_2 = obj_2_cfg.replace(prim_path="{ENV_REGEX_NS}/obj_2") 
+
+
+        self.objs: RigidObjectCollectionCfg = RigidObjectCollectionCfg(
+            rigid_objects={
+                f"obj_{i}": OBJ_CFGs[i].replace(
+                    prim_path="{ENV_REGEX_NS}/obj_"+str(i)
+                )
+                for i in range(len(OBJ_CFGs))
+            },
+        )
 
 
 ##
@@ -219,11 +320,13 @@ class ObservationsCfg:
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame) 
         # depth_image = ObsTerm(func=mdp.depht_table_image)
         # target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
-        actions = ObsTerm(func=mdp.last_action)
+        actions = ObsTerm(func=mdp.last_action)  
+        class_type = ObsTerm(func=mdp.class_type)
 
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
+            # self.history_length = 4
     
     @configclass
     class CriticCfg(ObsGroup):
@@ -232,16 +335,22 @@ class ObservationsCfg:
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame) 
         # depth_image = ObsTerm(func=mdp.depht_table_image)
         # target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
-        actions = ObsTerm(func=mdp.last_action)
+        actions = ObsTerm(func=mdp.last_action) 
+        class_type = ObsTerm(func=mdp.class_type)
+
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
+            # self.history_length = 4
     
-    @configclass
-    class DepthImage(ObsGroup):
-        depth_image = ObsTerm(func=mdp.depht_table_image)
+    # @configclass
+    # class DepthImage(ObsGroup):
+    #     depth_image = ObsTerm(func=mdp.depht_table_image)
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
     critic: CriticCfg = CriticCfg()
-    depth_image: DepthImage = DepthImage()
+    # depth_image: DepthImage = DepthImage()
 
 
 
@@ -255,9 +364,9 @@ class EventCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (-0.1, 0.1), "y": (-0.15, 0.15), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.15, 0.15), "z": (0.0, 0.0), "yaw": (-0.5, 0.5)},
             "velocity_range": {},
-            "asset_cfg": SceneEntityCfg("object", body_names="Object"),
+            "asset_cfg": SceneEntityCfg("objs"),
         },
     )
 
@@ -266,13 +375,17 @@ class EventCfg:
 class RewardsCfg:
     """Reward terms for the MDP."""
 
-    reaching_object = RewTerm(func=mdp.object_ee_distance, params={"std": 0.1}, weight=5.0)
+    reaching_object = RewTerm(func=mdp.object_ee_distance, params={"std": 0.1}, weight=20.0)
 
-    lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.04}, weight=15.0) 
+    lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.05}, weight=30.0)  
 
-    stay_in_air = RewTerm(func=mdp.in_air, weight=0.5) 
+    object_panelty_xy = RewTerm(func=mdp.object_penalty_xy, weight=0.02)
 
-    ori_gripper = RewTerm(func=mdp.ori_ee, weight=0.5)
+    # stay_in_air = RewTerm(func=mdp.in_air, weight=0.5) 
+
+    ori_gripper = RewTerm(func=mdp.ori_ee, weight=0.3) 
+
+    regi = RewTerm(func=mdp.gripper_dist_reg, weight=0.00005)
 
     # object_goal_tracking = RewTerm(
     #     func=mdp.object_goal_distance,
@@ -287,11 +400,11 @@ class RewardsCfg:
     # )
 
     # action penalty
-    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
+    action_rate = RewTerm(func=mdp.action_rate_l2, weight=-8e-4)
 
     joint_vel = RewTerm(
         func=mdp.joint_vel_l2,
-        weight=-1e-4,
+        weight=-3e-4,
         params={"asset_cfg": SceneEntityCfg("robot")},
     )
 
@@ -303,21 +416,26 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     object_dropping = DoneTerm(
-        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object")}
+        func=mdp.root_height_below_minimum, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("objs")}
+    ) 
+
+    object_xy_drift = DoneTerm(
+        func=mdp.object_termination_xy, params={"object_cfg": SceneEntityCfg("objs")}
     )
+
 
 
 @configclass
 class CurriculumCfg:
     """Curriculum terms for the MDP."""
 
-    action_rate = CurrTerm(
-        func=mdp.modify_reward_weight, params={"term_name": "action_rate", "weight": -1e-1, "num_steps": 10000}
-    )
+    # action_rate = CurrTerm(
+    #     func=mdp.modify_reward_weight, params={"term_name": "action_rate", "weight": -1e-1, "num_steps": 10000}
+    # )
 
-    joint_vel = CurrTerm(
-        func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-1, "num_steps": 10000}
-    )
+    # joint_vel = CurrTerm(
+    #     func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-1, "num_steps": 10000}
+    # )
 
 
 ##
@@ -347,7 +465,7 @@ class LiftEnvCfg(ManagerBasedRLEnvCfg):
         self.decimation = 2
         self.episode_length_s = 5.0
         # simulation settings
-        self.sim.dt = 0.01  # 100Hz
+        self.sim.dt = 0.01 # 100Hz
         self.sim.render_interval = self.decimation
 
         self.sim.physx.bounce_threshold_velocity = 0.2
@@ -355,3 +473,4 @@ class LiftEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.physx.gpu_found_lost_aggregate_pairs_capacity = 1024 * 1024 * 4
         self.sim.physx.gpu_total_aggregate_pairs_capacity = 16 * 1024
         self.sim.physx.friction_correlation_distance = 0.00625
+        self.sim.physx.enable_ccd = True

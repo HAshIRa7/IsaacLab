@@ -24,7 +24,7 @@ from isaaclab.markers.config import FRAME_MARKER_CFG  # isort: skip
 from isaaclab_assets.robots.franka import FRANKA_PANDA_CFG  # isort: skip
 
 CAM_HEIGHT, CAM_WIDTH = 224, 224
-MODALITIES = ["rgb", "distance_to_image_plane", "instance_segmentation_fast"]
+MODALITIES = ["distance_to_image_plane"]
 
 focus_distance = 44. # 400.0
 focal_length_cm = 1.69 # 18.14756
@@ -57,14 +57,14 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
 
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot") 
-        self.scene.camera = CAMERA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot/panda_hand/camera", 
-                                offset=CameraCfg.OffsetCfg(
-                                    pos = (0.15, 0.0, -0.1),
-                                    rot = (0.7071067811865476, 0.0, 0, 0.7071067811865475),
-                                    # pos=(0.1, -0.1, 0.3), 
-                                    # rot=(-0.36946689350154266, 0.6214172282774272, -0.6029111395713285, 0.3374051345200147), 
-                                    convention="ros")
-                            )
+        # self.scene.camera = CAMERA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot/panda_hand/camera", 
+        #                         offset=CameraCfg.OffsetCfg(
+        #                             pos = (0.15, 0.0, -0.1),
+        #                             rot = (0.7071067811865476, 0.0, 0, 0.7071067811865475),
+        #                             # pos=(0.1, -0.1, 0.3), 
+        #                             # rot=(-0.36946689350154266, 0.6214172282774272, -0.6029111395713285, 0.3374051345200147), 
+        #                             convention="ros")
+        #                     )
 
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(
@@ -80,22 +80,22 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
         self.commands.object_pose.body_name = "panda_hand"
 
         # Set Cube as object
-        self.scene.object = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Object",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1, 0, 0, 0]),
-            spawn=UsdFileCfg(
-                usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
-                scale=(0.8, 0.8, 0.8),
-                rigid_props=RigidBodyPropertiesCfg(
-                    solver_position_iteration_count=16,
-                    solver_velocity_iteration_count=1,
-                    max_angular_velocity=1000.0,
-                    max_linear_velocity=1000.0,
-                    max_depenetration_velocity=5.0,
-                    disable_gravity=False,
-                ),
-            ),
-        )
+        # self.scene.object = RigidObjectCfg(
+        #     prim_path="{ENV_REGEX_NS}/Object",
+        #     init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1, 0, 0, 0]),
+        #     spawn=UsdFileCfg(
+        #         usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Blocks/DexCube/dex_cube_instanceable.usd",
+        #         scale=(0.8, 0.8, 0.8),
+        #         rigid_props=RigidBodyPropertiesCfg(
+        #             solver_position_iteration_count=16,
+        #             solver_velocity_iteration_count=1,
+        #             max_angular_velocity=1000.0,
+        #             max_linear_velocity=1000.0,
+        #             max_depenetration_velocity=5.0,
+        #             disable_gravity=False,
+        #         ),
+        #     ),
+        # )
 
         # self.scene.chipasiki = RigidObjectCfg(
         #     prim_path="{ENV_REGEX_NS}/Object/Chipasiki",

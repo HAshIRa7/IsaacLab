@@ -50,4 +50,27 @@ def object_reached_goal(
     distance = torch.norm(des_pos_w - object.data.root_pos_w[:, :3], dim=1)
 
     # rewarded if the object is lifted above the threshold
-    return distance < threshold
+    return distance < threshold 
+
+
+def root_height_below_minimum(
+    env: ManagerBasedRLEnv, minimum_height: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robjs")
+) -> torch.Tensor:
+    """Terminate when the asset's root height is below the minimum height.
+
+    Note:
+        This is currently only supported for flat terrains, i.e. the minimum height is in the world frame.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: RigidObject = env.scene[asset_cfg.name]
+    return asset.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 2] < minimum_height  
+
+def object_termination_xy(
+    env: ManagerBasedRLEnv, object_cfg: SceneEntityCfg = SceneEntityCfg("objs")
+) -> torch.Tensor:
+    objects: RigidObject = env.scene[object_cfg.name]
+    return torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.scene.env_origins[:, :2] - objects.data.default_object_state[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2], dim=1) > 0.3
+
+
+
+
