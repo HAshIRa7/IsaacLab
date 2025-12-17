@@ -10,6 +10,7 @@
 
 ### SETUP 
 
+IsaacSim - 4.5.0, IsaacLab - v2.0.2
 
 Robot - Franka-Panda 
 
@@ -24,8 +25,11 @@ Also setuping samera with depth and RGB lead to bad perfomance - only 50 envs av
 Success rate: tetra-pack: ~ 78%, tin-can - 80%, chips-bag - 0%. Can't pick up chips even if training with only it. 
 Grasps - pose for tetra pack only orthogonal for origin of pack, can-tin can pick for both sides 
 
-
-
 ##### Training process 
 
-![](https://github.com/HAshIRa7/IsaacLab/blob/feat/grasps/train.gif)  
+![](https://github.com/HAshIRa7/IsaacLab/blob/feat/grasps/train.gif)   
+
+
+##### Usd files  
+
+Create URDF and use this script [link](https://github.com/YitianShi/MetaIsaacGrasp/blob/main/urdf_converter.py)
