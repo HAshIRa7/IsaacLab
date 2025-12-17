@@ -427,17 +427,6 @@ class InteractiveScene:
                 Defaults to None (all instances).
         """
         # -- assets
-        for articulation in self._articulations.values():
-            articulation.reset(env_ids        # for prim in self.stage.Traverse():
-        #     # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
-        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
-        #     # mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.MassAPI):
-        #         UsdPhysics.MassAPI.Apply(prim)
-        #     # collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.CollisionAPI):
-        #         UsdPhysics.CollisionAPI.Apply(prim))
         for deformable_object in self._deformable_objects.values():
             deformable_object.reset(env_ids)
         for rigid_object in self._rigid_objects.values():
