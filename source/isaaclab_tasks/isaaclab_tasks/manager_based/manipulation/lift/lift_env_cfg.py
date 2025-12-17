@@ -28,77 +28,6 @@ from . import mdp
 ##
 
 
-# @configclass
-# class ObjectTableSceneCfg(InteractiveSceneCfg):
-#     """Configuration for the lift scene with a robot and a object.
-#     This is the abstract base implementation, the exact scene is defined in the derived classes
-#     which need to set the target object, robot and end-effector frames
-#     """
-
-#     # robots: will be populated by agent env cfg
-#     robot: ArticulationCfg = MISSING
-#     # end-effector sensor: will be populated by agent env cfg
-#     ee_frame: FrameTransformerCfg = MISSING
-#     # target object: will be populated by agent env cfg
-#     object: RigidObjectCfg | DeformableObjectCfg = MISSING
-#     # chipasiki: RigidObjectCfg | DeformableObjectCfg = MISSING
-
-#     # Table
-#     table = AssetBaseCfg(
-#         prim_path="{ENV_REGEX_NS}/Table",
-#         init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
-#         spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd"),
-#     ) 
-
-#     # chipasiki = AssetBaseCfg(
-#     #     prim_path="{ENV_REGEX_NS}/Chipasi",
-#     #     init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1.0, 0.0, 0.0, 0.0]),
-#     #     spawn=UsdFileCfg(usd_path=f"/home/maslennikov-egor/chipasi/chipasi.usd"),
-#     # )
-
-#     # plane
-#     plane = AssetBaseCfg(
-#         prim_path="/World/GroundPlane",
-#         init_state=AssetBaseCfg.InitialStateCfg(pos=[0, 0, -1.05]),
-#         spawn=GroundPlaneCfg(),
-#     )
-
-#     # lights
-#     light = AssetBaseCfg(
-#         prim_path="/World/light",
-#         spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=3000.0),
-#     )
- 
-#     obj = RigidObjectCfg(
-#         spawn=sim_utils.UsdFileCfg(
-#             usd_path='/home/maslennikov-egor/chipasi/orbit_obj.usd',
-#             rigid_props=sim_utils.RigidBodyPropertiesCfg(
-#                     rigid_body_enabled=True,
-#                     disable_gravity=False,
-#                     max_depenetration_velocity=50.0,
-#                     linear_damping = 1,
-#                     angular_damping = 2,
-#                     max_contact_impulse = float("inf"),
-#                     max_linear_velocity=1,
-#                     solver_position_iteration_count=32,
-#                     solver_velocity_iteration_count=16,
-#                     stabilization_threshold=0.1,
-#                     ),
-#             mass_props = sim_utils.MassPropertiesCfg(density=5.0),
-#             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-#                 articulation_enabled=False,
-#             ),
-#             # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
-#         ),
-#         init_state=RigidObjectCfg.InitialStateCfg(
-#             pos=(0., .5, 0.2),
-#             rot=(1.0, 0.0, 0.0, 0.0),
-#         ),
-#         collision_group = 0,
-#         prim_path = "{ENV_REGEX_NS}/obj"
-#     ) 
-
-
 @configclass
 class ObjectTableSceneCfg(InteractiveSceneCfg):
     """Configuration for the lift scene with a robot and a object.
@@ -108,26 +37,12 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
     def  __init__(self, **kwargs):
 
-        # robots: will be populated by agent env cfg
-        # self.robot: ArticulationCfg = MISSING
-        # # end-effector sensor: will be populated by agent env cfg
-        # ee_frame: FrameTransformerCfg = MISSING
-        # # target object: will be populated by agent env cfg
-        # object: RigidObjectCfg | DeformableObjectCfg = MISSING
-        # # chipasiki: RigidObjectCfg | DeformableObjectCfg = MISSING
-
         # Table
         self.table = AssetBaseCfg(
             prim_path="{ENV_REGEX_NS}/Table",
             init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0], rot=[0.707, 0, 0, 0.707]),
             spawn=UsdFileCfg(usd_path=f"{ISAAC_NUCLEUS_DIR}/Props/Mounts/SeattleLabTable/table_instanceable.usd"),
-        ) 
-
-        # chipasiki = AssetBaseCfg(
-        #     prim_path="{ENV_REGEX_NS}/Chipasi",
-        #     init_state=AssetBaseCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1.0, 0.0, 0.0, 0.0]),
-        #     spawn=UsdFileCfg(usd_path=f"/home/maslennikov-egor/chipasi/chipasi.usd"),
-        # )
+        )
 
         # plane
         self.plane = AssetBaseCfg(
@@ -170,38 +85,10 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
             ),
             collision_group = 0,
             prim_path = "{ENV_REGEX_NS}/obj"
-        ) 
-
-        cube_cfg = RigidObjectCfg(
-            prim_path="{ENV_REGEX_NS}/Object",
-            init_state=RigidObjectCfg.InitialStateCfg(pos=[0.5, 0, 0.055], rot=[1, 0, 0, 0]),
-            spawn=UsdFileCfg(
-                usd_path="/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd",
-                scale=(1.0, 1.0, 1.0),
-                rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                    rigid_body_enabled=True,
-                    disable_gravity=False,
-                    max_depenetration_velocity=4.0,
-                    linear_damping = .1,
-                    angular_damping = .1,
-                    max_contact_impulse = float("inf"),
-                    max_angular_velocity=2,
-                    max_linear_velocity=2,
-                    solver_position_iteration_count=32,
-                    solver_velocity_iteration_count=10,
-                    stabilization_threshold=0.1,
-                ),
-                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
-                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-                    articulation_enabled=False,
-                ),
-            ),
-            collision_group=0
         )
 
         obj_1_cfg = RigidObjectCfg(
             spawn=sim_utils.UsdFileCfg(
-                # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
                 usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd',
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(
                         rigid_body_enabled=True,
@@ -259,14 +146,9 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
         ) 
 
 
-        OBJ_CFGs = [obj_2_cfg, obj_1_cfg]# obj_2_cfg]
+        OBJ_CFGs = [obj_2_cfg, obj_1_cfg, obj_cfg]
 
-        super().__init__(**kwargs) 
-
-        # self.obj = obj_cfg.replace(prim_path="{ENV_REGEX_NS}/obj")
-        # self.obj_1 = obj_1_cfg.replace(prim_path="{ENV_REGEX_NS}/obj_1") 
-        # self.obj_2 = obj_2_cfg.replace(prim_path="{ENV_REGEX_NS}/obj_2") 
-
+        super().__init__(**kwargs)
 
         self.objs: RigidObjectCollectionCfg = RigidObjectCollectionCfg(
             rigid_objects={
@@ -318,39 +200,28 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame) 
-        # depth_image = ObsTerm(func=mdp.depht_table_image)
-        # target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
         actions = ObsTerm(func=mdp.last_action)  
         class_type = ObsTerm(func=mdp.class_type)
 
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            # self.history_length = 4
     
     @configclass
     class CriticCfg(ObsGroup):
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
-        object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame) 
-        # depth_image = ObsTerm(func=mdp.depht_table_image)
-        # target_object_position = ObsTerm(func=mdp.generated_commands, params={"command_name": "object_pose"})
+        object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
         actions = ObsTerm(func=mdp.last_action) 
         class_type = ObsTerm(func=mdp.class_type)
 
         def __post_init__(self):
             self.enable_corruption = True
             self.concatenate_terms = True
-            # self.history_length = 4
-    
-    # @configclass
-    # class DepthImage(ObsGroup):
-    #     depth_image = ObsTerm(func=mdp.depht_table_image)
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
     critic: CriticCfg = CriticCfg()
-    # depth_image: DepthImage = DepthImage()
 
 
 
@@ -381,25 +252,10 @@ class RewardsCfg:
 
     object_panelty_xy = RewTerm(func=mdp.object_penalty_xy, weight=0.02)
 
-    # stay_in_air = RewTerm(func=mdp.in_air, weight=0.5) 
-
     ori_gripper = RewTerm(func=mdp.ori_ee, weight=0.3) 
 
     regi = RewTerm(func=mdp.gripper_dist_reg, weight=0.00005)
 
-    # object_goal_tracking = RewTerm(
-    #     func=mdp.object_goal_distance,
-    #     params={"std": 0.3, "minimal_height": 0.04, "command_name": "object_pose"},
-    #     weight=16.0,
-    # )
-
-    # object_goal_tracking_fine_grained = RewTerm(
-    #     func=mdp.object_goal_distance,
-    #     params={"std": 0.05, "minimal_height": 0.04, "command_name": "object_pose"},
-    #     weight=5.0,
-    # )
-
-    # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-8e-4)
 
     joint_vel = RewTerm(
@@ -428,14 +284,6 @@ class TerminationsCfg:
 @configclass
 class CurriculumCfg:
     """Curriculum terms for the MDP."""
-
-    # action_rate = CurrTerm(
-    #     func=mdp.modify_reward_weight, params={"term_name": "action_rate", "weight": -1e-1, "num_steps": 10000}
-    # )
-
-    # joint_vel = CurrTerm(
-    #     func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-1, "num_steps": 10000}
-    # )
 
 
 ##

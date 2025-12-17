@@ -127,28 +127,7 @@ class InteractiveScene:
         self.cloner.define_base_env(self.env_ns)
         self.env_prim_paths = self.cloner.generate_paths(f"{self.env_ns}/env", self.cfg.num_envs)
         # create source prim
-        # for prim in self.stage.Traverse():
-        #     # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
-        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
-        #     # mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.MassAPI):
-        #         UsdPhysics.MassAPI.Apply(prim)
-        #     # collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
-        #     if prim.CanApplyAPI(UsdPhysics.CollisionAPI):
-        #         UsdPhysics.CollisionAPI.Apply(prim)
         self.stage.DefinePrim(self.env_prim_paths[0], "Xform")
-        # for prim in self.stage.Traverse():
-        #     rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
-
-        #     if not rigid_body_api and prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
-        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
-        #     mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
-        #     if not mass_api and prim.CanApplyAPI(UsdPhysics.MassAPI):
-        #         UsdPhysics.MassAPI.Apply(prim)
-        #     collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
-        #     if not collision_api and prim.CanApplyAPI(UsdPhysics.CollisionAPI):
-        #         UsdPhysics.CollisionAPI.Apply(prim)
 
         # when replicate_physics=False, we assume heterogeneous environments and clone the xforms first.
         # this triggers per-object level cloning in the spawner.
@@ -188,21 +167,6 @@ class InteractiveScene:
             # to filter collisions if replicate_physics is not enabled
             if not self.cfg.replicate_physics and self.cfg.filter_collisions:
                 self.filter_collisions(self._global_prim_paths)
-
-        # for prim in self.stage.Traverse():
-        #     rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
-
-        #     if not rigid_body_api and prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
-        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
-        #     mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
-        #     if not mass_api and prim.CanApplyAPI(UsdPhysics.MassAPI):
-        #         UsdPhysics.MassAPI.Apply(prim)
-        #     collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
-        #     if not collision_api and prim.CanApplyAPI(UsdPhysics.CollisionAPI):
-        #         UsdPhysics.CollisionAPI.Apply(prim)
-        
-        # self.stage.GetRootLayer().Save()
-            
 
 
     def clone_environments(self, copy_from_source: bool = False):
@@ -255,7 +219,16 @@ class InteractiveScene:
             global_prim_paths: A list of global prim paths to enable collisions with.
                 Defaults to None, in which case no global prim paths are considered.
         """
-        # validate paths in global prim paths
+        # validate paths in global pri        # for prim in self.stage.Traverse():
+        #     # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
+        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
+        #     # mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.MassAPI):
+        #         UsdPhysics.MassAPI.Apply(prim)
+        #     # collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.CollisionAPI):
+        #         UsdPhysics.CollisionAPI.Apply(prim)m paths
         if global_prim_paths is None:
             global_prim_paths = []
         else:
@@ -455,7 +428,16 @@ class InteractiveScene:
         """
         # -- assets
         for articulation in self._articulations.values():
-            articulation.reset(env_ids)
+            articulation.reset(env_ids        # for prim in self.stage.Traverse():
+        #     # rigid_body_api = UsdPhysics.RigidBodyAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.RigidBodyAPI):
+        #         UsdPhysics.RigidBodyAPI.Apply(prim) 
+        #     # mass_api = UsdPhysics.MassAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.MassAPI):
+        #         UsdPhysics.MassAPI.Apply(prim)
+        #     # collision_api = UsdPhysics.CollisionAPI.Get(self.stage, prim.GetPath()) 
+        #     if prim.CanApplyAPI(UsdPhysics.CollisionAPI):
+        #         UsdPhysics.CollisionAPI.Apply(prim))
         for deformable_object in self._deformable_objects.values():
             deformable_object.reset(env_ids)
         for rigid_object in self._rigid_objects.values():
