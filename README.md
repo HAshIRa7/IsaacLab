@@ -16,7 +16,9 @@ Robot - Franka-Panda
 
 Observations - joint positions, joint velocities, object position in gripper frame, one hot encoding of object types
 
-Policy - MLP [256, 128, 64]
+Policy - MLP [256, 128, 64] 
+
+Actions - Franka joint positions + binary gripper close/open
 
 Training on Laptop 4080 - 512 envs with NO Cameras, 
 
