@@ -19,7 +19,7 @@ Training on Laptop 4080 - 512 envs with NO Cameras,
 
 Also setuping samera with depth and RGB lead to bad perfomance - only 50 envs available + iteration from 1s to 6s 
 
-Grasps - pose for tetra pack only orthogonal for origin of pack, can-tin can pick for both sides  
+Can't grasp chips bag.
 
 For experiment evaluation see ![analys](https://github.com/HAshIRa7/IsaacLab/blob/feat/grasps/analysis.ipynb)   
 
