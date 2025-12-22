@@ -48,10 +48,11 @@ import gymnasium as gym
 import os
 import time
 import torch
+import pickle
 
 from rsl_rl.runners import OnPolicyRunner
 
-from isaaclab.envs import DirectMARLEnv, multi_agent_to_single_agent
+from isaaclab.envs import DirectMARLEnv, multi_agent_to_single_agent, ManagerBasedRLEnv
 from isaaclab.utils.assets import retrieve_file_path
 from isaaclab.utils.dict import print_dict
 from isaaclab.utils.pretrained_checkpoint import get_published_pretrained_checkpoint
@@ -59,7 +60,43 @@ from isaaclab.utils.pretrained_checkpoint import get_published_pretrained_checkp
 from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, export_policy_as_jit, export_policy_as_onnx
 
 import isaaclab_tasks  # noqa: F401
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.assets import RigidObject
 from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
+import isaaclab.utils.math as math_utils
+
+def angle_normalize(angle: torch.Tensor) -> torch.Tensor:
+    return torch.where(angle < torch.pi, angle, angle - 2 * torch.pi)
+
+def get_grasp_moment(
+        env: ManagerBasedRLEnv,
+        robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+        objects_cfg: SceneEntityCfg = SceneEntityCfg("objs")
+):
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[objects_cfg.name]
+    object_pos_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :3] 
+    object_quat_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 3:7]
+    gripper_link_index = robot.data.body_names.index('panda_hand')
+    _, object_quat_b = math_utils.subtract_frame_transforms(
+        robot.data.body_state_w[:, gripper_link_index, :3], robot.data.body_state_w[:, gripper_link_index, 3:7], object_pos_w,
+    )
+    robot_quat_in_object_b = math_utils.quat_inv(object_quat_b)
+    angles = math_utils.euler_xyz_from_quat(robot_quat_in_object_b)
+    roll, pitch, yaw = list(map(angle_normalize, angles))
+    is_closed = (torch.abs(env.action_manager.get_term('gripper_action').processed_actions - env.action_manager.get_term('gripper_action')._close_command) < 0.000001).any(dim=1)
+    
+    
+    for env_id in range(env.num_envs):
+        if env.is_grasped[env_id].item() == 0 and is_closed[env_id].item() and object_pos_w[env_id][2].item() > 0.08:
+            env.is_grasped[env_id] = 1
+            object_tracking_id = env.object_tracking_inds[env_id].item()
+            env.obj2grasp[object_tracking_id]['roll'].append(roll[env_id].item())
+            env.obj2grasp[object_tracking_id]['pitch'].append(pitch[env_id].item())
+            env.obj2grasp[object_tracking_id]['yaw'].append(yaw[env_id].item())
+        
+    # object_quat_b - A matrix from frame object to frame robot object orientation w.r.t robot orientation
+    # convert matrix from robot to object
 
 
 def main():
@@ -131,6 +168,7 @@ def main():
     obs, extras = env.get_observations()
     # depth_images = extras['observations']['depth_image']
     timestep = 0
+    my_timestep = 0
     # simulate environment
     while simulation_app.is_running():
         start_time = time.time()
@@ -140,6 +178,13 @@ def main():
             actions = policy(obs)
             # env stepping
             obs, _, _, infos = env.step(actions) 
+            get_grasp_moment(env.unwrapped)
+            my_timestep += 1
+            if my_timestep % 1000 == 0: 
+                with open('data.pkl', 'wb') as data_file:
+                    pickle.dump(env.unwrapped.yaw2success, data_file) 
+                with open('ori.pkl', 'wb') as ori_file:
+                    pickle.dump(env.unwrapped.obj2grasp, ori_file)
             # depth_images = infos['observations']['depth_image']
         if args_cli.video:
             timestep += 1

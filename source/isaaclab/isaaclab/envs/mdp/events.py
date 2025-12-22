@@ -721,6 +721,7 @@ def reset_root_state_uniform(
 
     root_states = asset.data.default_object_state[env_ids].clone()
     env.object_tracking_inds[env_ids] = torch.randint(0, root_states.shape[1], size=(len(env_ids),)).to(device=env.device)
+    env.is_grasped[env_ids] = 0
 
     # poses
     range_list = [pose_range.get(key, (0.0, 0.0)) for key in ["x", "y", "z", "roll", "pitch", "yaw"]]
@@ -736,6 +737,12 @@ def reset_root_state_uniform(
     rand_samples = math_utils.sample_uniform(ranges[:, 0], ranges[:, 1], (len(env_ids), 6), device=asset.device)
 
     velocities = root_states[:, :, 7:13] + rand_samples.unsqueeze(dim=1)
+
+    final_yaw_angle = math_utils.euler_xyz_from_quat(orientations[torch.arange(len(env_ids)), env.object_tracking_inds[env_ids]])[2] 
+    env.object_spawn_yaw[env_ids] = final_yaw_angle
+
+    # if len(env_ids) > 0:
+    env.object_spawn_posi[env_ids] = positions.clone()[torch.arange(len(env_ids)).to(env.device), env.object_tracking_inds[env_ids]]
 
     # set into the physics simulation
     asset.write_object_pose_to_sim(torch.cat([positions, orientations], dim=-1), env_ids=env_ids)
@@ -982,6 +989,14 @@ def reset_nodal_state_uniform(
 def reset_scene_to_default(env: ManagerBasedEnv, env_ids: torch.Tensor):
     """Reset the scene to the default state specified in the scene configuration."""
     # rigid bodies
+    objects = env.scene["objs"] 
+    tracking_objects_height = objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 2]
+    for env_id in env_ids:
+        env_object_is_lifted = tracking_objects_height[env_id].item() > 0.3
+        env_start_yaw = env.object_spawn_yaw[env_id].item()
+        id_tracking = env.object_tracking_inds[env_id].item()
+        env.yaw2success[id_tracking][env_start_yaw] = int(env_object_is_lifted)
+
     for rigid_object in env.scene.rigid_objects.values():
         # obtain default and deal with the offset for env origins
         default_root_state = rigid_object.data.default_root_state[env_ids].clone()
