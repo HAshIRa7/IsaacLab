@@ -30,6 +30,7 @@ For experiment evaluation see ![analys](https://github.com/HAshIRa7/IsaacLab/blo
 #### Can create different envs with different object orientation 
 
 ![](https://github.com/HAshIRa7/IsaacLab/blob/feat/grasps/another_train_setup.gif)
+![](https://github.com/HAshIRa7/IsaacLab/blob/feat/grasps/second_training_sample.gif)
 
 ##### Usd files  
 
