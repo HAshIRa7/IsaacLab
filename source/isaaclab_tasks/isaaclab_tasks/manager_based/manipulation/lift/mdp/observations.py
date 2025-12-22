@@ -10,30 +10,49 @@ from typing import TYPE_CHECKING
 
 from isaaclab.assets import RigidObject
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.utils.math import subtract_frame_transforms
+from isaaclab.utils.math import subtract_frame_transforms 
+from isaaclab.utils.math import euler_xyz_from_quat
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
-
 def object_position_in_robot_root_frame(
+     env: ManagerBasedRLEnv,
+     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+     objects_cfg: SceneEntityCfg = SceneEntityCfg("objs")
+) -> torch.Tensor: 
+    robot: RigidObject = env.scene[robot_cfg.name]
+    object: RigidObject = env.scene[objects_cfg.name] 
+    object_pos_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :3]  
+    gripper_link_index = robot.data.body_names.index('panda_hand')
+    object_pos_b, _ = subtract_frame_transforms(
+        robot.data.body_state_w[:, gripper_link_index, :3], robot.data.body_state_w[:, gripper_link_index, 3:7], object_pos_w,
+    )
+    return object_pos_b 
+
+def object_yaw_in_world_frame(
     env: ManagerBasedRLEnv,
-    robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    # robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     # object_cfg: SceneEntityCfg = SceneEntityCfg("object")
     objects_cfg: SceneEntityCfg = SceneEntityCfg("objs")
 ) -> torch.Tensor:
     """The position of the object in the robot's root frame."""
-    # for i in range(env.num_envs):
-    # name = env.objects[env.sampled_indices[i]] 
-    # object_cfg = SceneEntityCfg(name)
-    robot: RigidObject = env.scene[robot_cfg.name]
     object: RigidObject = env.scene[objects_cfg.name]
-    # object_pos_w = object.data.root_pos_w[:, :3] 
-    object_pos_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :3]
-    object_pos_b, _ = subtract_frame_transforms(
-        robot.data.root_state_w[:, :3], robot.data.root_state_w[:, 3:7], object_pos_w
-    )
-    return object_pos_b
+    object_quat_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 3:7] 
+    yaw_in_world_frame = euler_xyz_from_quat(object_quat_w)[2].unsqueeze(dim=-1) 
+
+    return torch.where(yaw_in_world_frame < torch.pi, yaw_in_world_frame, yaw_in_world_frame - 2 * torch.pi) 
+
+def object_roll_in_world_frame(
+    env: ManagerBasedRLEnv,
+    objects_cfg: SceneEntityCfg = SceneEntityCfg("objs")
+) -> torch.Tensor:
+    
+    object: RigidObject = env.scene[objects_cfg.name] 
+    object_quat_w = object.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 3:7] 
+    roll_in_world_frame = euler_xyz_from_quat(object_quat_w)[0].unsqueeze(dim=-1) 
+
+    return torch.where(roll_in_world_frame < torch.pi, roll_in_world_frame, roll_in_world_frame - 2 * torch.pi)
 
 def class_type(
     env: ManagerBasedRLEnv,

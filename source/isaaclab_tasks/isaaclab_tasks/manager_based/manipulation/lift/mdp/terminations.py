@@ -69,8 +69,4 @@ def object_termination_xy(
     env: ManagerBasedRLEnv, object_cfg: SceneEntityCfg = SceneEntityCfg("objs")
 ) -> torch.Tensor:
     objects: RigidObject = env.scene[object_cfg.name]
-    return torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.scene.env_origins[:, :2] - objects.data.default_object_state[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2], dim=1) > 0.3
-
-
-
-
+    return torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.object_spawn_posi[:, :2], dim=1) > 0.3

@@ -23,14 +23,13 @@ def object_is_lifted(
     """Reward the agent for lifting the object above the minimal height."""
     objects: RigidObject = env.scene[object_cfg.name]
     height = objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, 2]
-    return torch.where(height > minimal_height, height, 0)
+    return torch.where(height > minimal_height, height, 0) #* (torch.abs(env.action_manager.get_term('gripper_action').processed_actions - env.action_manager.get_term('gripper_action')._close_command) < 0.000001).any(dim=1)
 
 def object_penalty_xy(
     env: ManagerBasedRLEnv, object_cfg: SceneEntityCfg = SceneEntityCfg("objs")
 ) -> torch.Tensor:
     objects: RigidObject = env.scene[object_cfg.name]
-    return -torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.scene.env_origins[:, :2] - objects.data.default_object_state[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2], dim=1)**2
-
+    return -torch.norm(objects.data.object_state_w[torch.arange(env.num_envs).to(device=env.device), env.object_tracking_inds][:, :2] - env.object_spawn_posi[:, :2], dim=1)**2 
 
 def object_ee_distance(
     env: ManagerBasedRLEnv,
@@ -49,7 +48,7 @@ def object_ee_distance(
     # Distance of the end-effector to the object: (num_envs,)
     object_ee_distance = torch.norm(object_pos_w - ee_w, dim=1)
 
-    # return 1 - torch.tanh(object_ee_distance / std)  
+    # return 1 - torch.tanh(object_ee_distance / std)
     return -object_ee_distance**2
 
 

@@ -56,11 +56,9 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
             prim_path="/World/light",
             spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=3000.0),
         )
-    
         obj_cfg = RigidObjectCfg(
             spawn=sim_utils.UsdFileCfg(
-                # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
-                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/my_model/chips_bag.usd',
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd',
                 rigid_props=sim_utils.RigidBodyPropertiesCfg(
                         rigid_body_enabled=True,
                         disable_gravity=False,
@@ -80,13 +78,12 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
                 # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
             ),
             init_state=RigidObjectCfg.InitialStateCfg(
-                pos=(0.4, 0.0, 0.055),
-                rot=(1.0, 0.0, 0.0, 0.0),
+                pos=(0.4, 0.3, 0.055),
+                rot=(0.7071068, -0.7071068, 0, 0,),
             ),
             collision_group = 0,
-            prim_path = "{ENV_REGEX_NS}/obj"
+            prim_path = "{ENV_REGEX_NS}/obj_1"
         )
-
         obj_1_cfg = RigidObjectCfg(
             spawn=sim_utils.UsdFileCfg(
                 usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd',
@@ -110,7 +107,7 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
             ),
             init_state=RigidObjectCfg.InitialStateCfg(
                 pos=(0.4, 0.0, 0.055),
-                rot=(1.0, 0.0, 0.0, 0.0),
+                rot=(1, 0.0, 0.0, 0.0),
             ),
             collision_group = 0,
             prim_path = "{ENV_REGEX_NS}/obj_1"
@@ -200,6 +197,7 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame) 
+        object_orientation = ObsTerm(func=mdp.object_yaw_in_world_frame)
         actions = ObsTerm(func=mdp.last_action)  
         class_type = ObsTerm(func=mdp.class_type)
 
@@ -212,6 +210,7 @@ class ObservationsCfg:
         joint_pos = ObsTerm(func=mdp.joint_pos_rel)
         joint_vel = ObsTerm(func=mdp.joint_vel_rel)
         object_position = ObsTerm(func=mdp.object_position_in_robot_root_frame)
+        object_orientation = ObsTerm(func=mdp.object_yaw_in_world_frame)
         actions = ObsTerm(func=mdp.last_action) 
         class_type = ObsTerm(func=mdp.class_type)
 
