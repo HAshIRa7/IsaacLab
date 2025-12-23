@@ -127,8 +127,8 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         self.object_spawn_posi = torch.zeros(size=(self.num_envs, 3), device=self.device) 
         self.object_spawn_yaw = torch.zeros(size=(self.num_envs,), device=self.device) 
         self.grasp_success = torch.zeros(size=(self.num_envs,), device=self.device, dtype=torch.bool) 
-        self.yaw2success = {0: {}, 1: {}, 2: {}}
-        self.obj2grasp = {0: {'roll': [], 'pitch': [], 'yaw': []}, 1: {'roll': [], 'pitch': [], 'yaw': []}, 2: {'roll': [], 'pitch': [], 'yaw': []}}
+        self.yaw2success = {0: {}, 1: {}, 2: {}, 3: {}, 4: {}}
+        self.obj2grasp = {0: {'roll': [], 'pitch': [], 'yaw': []}, 1: {'roll': [], 'pitch': [], 'yaw': []}, 2: {'roll': [], 'pitch': [], 'yaw': []}, 3: {'roll': [], 'pitch': [], 'yaw': []}, 4: {'roll': [], 'pitch': [], 'yaw': []}}
         self.is_grasped = torch.zeros(size=(self.num_envs,), device=self.device, dtype=torch.bool) 
         super().load_managers()
 

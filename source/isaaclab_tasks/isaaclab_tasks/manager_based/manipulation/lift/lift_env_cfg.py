@@ -56,6 +56,34 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
             prim_path="/World/light",
             spawn=sim_utils.DomeLightCfg(color=(0.75, 0.75, 0.75), intensity=3000.0),
         )
+        chips_cfg = RigidObjectCfg(
+            spawn=sim_utils.UsdFileCfg(
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/my_model/chips_bag.usd',
+                rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                        rigid_body_enabled=True,
+                        disable_gravity=False,
+                        max_depenetration_velocity=50.0,
+                        linear_damping = 1,
+                        angular_damping = 2,
+                        max_contact_impulse = float("inf"),
+                        max_linear_velocity=1,
+                        solver_position_iteration_count=32,
+                        solver_velocity_iteration_count=16,
+                        stabilization_threshold=0.1,
+                        ),
+                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
+                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                    articulation_enabled=False,
+                ),
+                # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
+            ),
+            init_state=RigidObjectCfg.InitialStateCfg(
+                pos=(0.3, 0.2, 0.055),
+                rot=(1, 0, 0, 0,),
+            ),
+            collision_group = 0,
+            prim_path = "{ENV_REGEX_NS}/obj_10"
+        )
         obj_cfg = RigidObjectCfg(
             spawn=sim_utils.UsdFileCfg(
                 usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/can/chips_bag.usd',
@@ -142,8 +170,38 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
             prim_path = "{ENV_REGEX_NS}/obj_2"
         ) 
 
+        obj_3_cfg = RigidObjectCfg(
+            spawn=sim_utils.UsdFileCfg(
+                # /home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/010/orbit_obj.usd
+                usd_path='/home/maslennikov-egor/MetaIsaacGrasp/models/models_ifl/tetra/chips_bag.usd',
+                rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                        rigid_body_enabled=True,
+                        disable_gravity=False,
+                        max_depenetration_velocity=50.0,
+                        linear_damping = 1,
+                        angular_damping = 2,
+                        max_contact_impulse = float("inf"),
+                        max_linear_velocity=1,
+                        solver_position_iteration_count=32,
+                        solver_velocity_iteration_count=16,
+                        stabilization_threshold=0.1,
+                        ),
+                mass_props = sim_utils.MassPropertiesCfg(density=5.0),
+                articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                    articulation_enabled=False,
+                ),
+                # semantic_tags=[("class", f"{MGN_PATH.split('/')[-2]}"), ("color", "red")],
+            ),
+            init_state=RigidObjectCfg.InitialStateCfg(
+                pos=(0.6, 0.0, 0.055),
+                rot=(0.7071068, 0.7071068, 0, 0,),
+            ),
+            collision_group = 0,
+            prim_path = "{ENV_REGEX_NS}/obj_3"
+        ) 
 
-        OBJ_CFGs = [obj_2_cfg, obj_1_cfg, obj_cfg]
+
+        OBJ_CFGs = [obj_2_cfg, obj_1_cfg, obj_cfg, obj_3_cfg, chips_cfg]
 
         super().__init__(**kwargs)
 
@@ -218,9 +276,14 @@ class ObservationsCfg:
             self.enable_corruption = True
             self.concatenate_terms = True
 
+    @configclass
+    class ImageCfg(ObsGroup):
+        depth_image = ObsTerm(func=mdp.depth_table_image)
+
     # observation groups
     policy: PolicyCfg = PolicyCfg()
-    critic: CriticCfg = CriticCfg()
+    critic: CriticCfg = CriticCfg() 
+    camera: ImageCfg = ImageCfg()
 
 
 
@@ -251,7 +314,7 @@ class RewardsCfg:
 
     object_panelty_xy = RewTerm(func=mdp.object_penalty_xy, weight=0.02)
 
-    ori_gripper = RewTerm(func=mdp.ori_ee, weight=0.3) 
+    # ori_gripper = RewTerm(func=mdp.ori_ee, weight=0.3) 
 
     regi = RewTerm(func=mdp.gripper_dist_reg, weight=0.00005)
 

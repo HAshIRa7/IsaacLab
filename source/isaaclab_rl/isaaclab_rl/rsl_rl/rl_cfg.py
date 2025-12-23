@@ -28,6 +28,8 @@ class RslRlPpoActorCriticCfg:
     activation: str = MISSING
     """The activation function for the actor and critic networks."""
 
+    camera_embedding_dim: int = MISSING
+
 
 @configclass
 class RslRlPpoAlgorithmCfg:

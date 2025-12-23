@@ -57,7 +57,7 @@ def object_roll_in_world_frame(
 def class_type(
     env: ManagerBasedRLEnv,
 ): 
-    one_hot = torch.zeros(size=(env.num_envs, 3)).to(device=env.device) 
+    one_hot = torch.zeros(size=(env.num_envs, 5)).to(device=env.device) 
     one_hot[torch.arange(env.num_envs), env.object_tracking_inds] = 1
     return one_hot
 

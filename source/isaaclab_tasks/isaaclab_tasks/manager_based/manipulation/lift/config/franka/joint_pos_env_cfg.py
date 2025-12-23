@@ -57,6 +57,7 @@ class FrankaCubeLiftEnvCfg(LiftEnvCfg):
 
         # Set Franka as robot
         self.scene.robot = FRANKA_PANDA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.camera = CAMERA_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot/camera")
 
         # Set actions for the specific robot type (franka)
         self.actions.arm_action = mdp.JointPositionActionCfg(

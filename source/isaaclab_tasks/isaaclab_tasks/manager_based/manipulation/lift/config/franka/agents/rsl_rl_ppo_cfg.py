@@ -19,6 +19,7 @@ class LiftCubePPORunnerCfg(RslRlOnPolicyRunnerCfg):
         init_noise_std=1.0,
         actor_hidden_dims=[256, 128, 64],
         critic_hidden_dims=[256, 128, 64],
+        camera_embedding_dim = 128,
         activation="elu",
     )
     algorithm = RslRlPpoAlgorithmCfg(
@@ -34,4 +35,4 @@ class LiftCubePPORunnerCfg(RslRlOnPolicyRunnerCfg):
         lam=0.95,
         desired_kl=0.01,
         max_grad_norm=1.0,
-    )
+    ),
