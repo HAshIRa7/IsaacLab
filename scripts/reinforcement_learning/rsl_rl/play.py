@@ -169,15 +169,23 @@ def main():
     # depth_images = extras['observations']['depth_image']
     timestep = 0
     my_timestep = 0
-    # simulate environment
+    # simulate environment 
+    if 'camera' in extras['observations']:
+        image = extras['observations']['camera'] 
+    else:
+        image = None
     while simulation_app.is_running():
         start_time = time.time()
         # run everything in inference mode
         with torch.inference_mode():
             # agent stepping
-            actions = policy(obs)
+            actions = policy(obs, image)
             # env stepping
-            obs, _, _, infos = env.step(actions) 
+            obs, _, _, extras = env.step(actions)
+            if 'camera' in extras['observations']:
+                image = extras['observations']['camera'] 
+            else:
+                image = None
             get_grasp_moment(env.unwrapped)
             my_timestep += 1
             if my_timestep % 1000 == 0: 
